@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:project_sem4/screens/cart_screen.dart';
 import '../controllers/product_controller.dart';
 import '../widgets/home_product_card.dart';
 import '../services/auth_service.dart';
@@ -50,6 +51,17 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(builder: (context) => const AdminScreen()),
     );
+  }
+
+  void _navigateToCartScreen() async {
+    String? token = await authService.getToken();
+    String? userId = await authService.getUserId();
+    if(token != null && userId != null){
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CartScreen(token: token, userId: int.parse(userId))),
+      );
+    }
   }
 
   void _navigateToContactScreen() {
@@ -195,27 +207,27 @@ class _HomeScreenState extends State<HomeScreen> {
           return const CircularProgressIndicator();
         }
         if (snapshot.hasData && snapshot.data != null) {
-          return DropdownButton<String>(
-            icon: const Icon(Icons.person, color: Colors.white),
-            items: [
-              DropdownMenuItem<String>(
-                value: 'username',
-                child: Text(snapshot.data!, style: TextStyle(color: Colors.pink)),
+          return Row(
+            children: [
+              Text(snapshot.data!, style: TextStyle(fontSize: 20, color: Colors.white)),
+              IconButton(
+                icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                iconSize: 24, // Đặt kích thước icon là 40px
+                onPressed: _navigateToCartScreen,
               ),
-              const DropdownMenuItem<String>(
-                value: 'logout',
-                child: Text('Logout', style: TextStyle(color: Colors.pink)),
-              ),
+              IconButton(
+                icon: const Icon(Icons.login, color: Colors.white),
+                  iconSize: 24, // Đặt kích thước icon là 40px
+                  onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                  },
+              )
             ],
-            onChanged: (value) {
-              if (value == 'logout') {
-                _logout();
-              }
-            },
           );
         } else {
           return IconButton(
             icon: const Icon(Icons.login, color: Colors.white),
+            iconSize: 24, // Đặt kích thước icon là 40px
             onPressed: () {
               Navigator.pushNamed(context, '/login');
             },

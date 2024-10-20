@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Ứng Dụng',
       initialRoute: '/home',
+      debugShowCheckedModeBanner: false,  // Ẩn banner debug
       routes: {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
