@@ -167,7 +167,7 @@ class ProductDetailScreen extends StatelessWidget {
                           await cartService.addToCart(token, product.id, int.parse(quantityController.text), int.parse(userId));
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Sản phẩm đã được thêm vào giỏ hàng!'),
+                              content: Text('${quantityController.text} Sản phẩm đã được thêm vào giỏ hàng!'),
                               duration: Duration(seconds: 2), // Thời gian hiển thị của thông báo
                             ),
                           );

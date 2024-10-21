@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:project_sem4/services/auth_service.dart';
 import '../models/cart.dart';
 import '../services/cart_service.dart';
 
@@ -6,7 +8,7 @@ class CartScreen extends StatefulWidget {
   final String token;
   final int userId;
 
-  const CartScreen({required this.token, required this.userId});
+  CartScreen({required this.token, required this.userId});
 
   @override
   _CartScreenState createState() => _CartScreenState();
@@ -19,7 +21,6 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     _cartItems = CartService().getCart(widget.token, widget.userId);
-
   }
 
   void _deleteCartItem(int id) {
@@ -28,6 +29,15 @@ class _CartScreenState extends State<CartScreen> {
         _cartItems = CartService()
             .getCart(widget.token, widget.userId); // Refresh cart items
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Xóa thành công'),
+          duration: Duration(
+              seconds:
+              2), // Thời gian hiển thị của thông báo
+        ),
+      );
     });
   }
 
@@ -36,7 +46,6 @@ class _CartScreenState extends State<CartScreen> {
 
     cartItem.forEach((item) {
       totalQuantity = totalQuantity + item.quantity;
-
     });
     return totalQuantity;
   }
@@ -44,12 +53,10 @@ class _CartScreenState extends State<CartScreen> {
   double getTotalCartPrice(List<CartItem> cartItem) {
     double totalPrice = 0;
     cartItem.forEach((item) {
-
-      totalPrice = totalPrice + item.price;
+      totalPrice = totalPrice + item.price * item.quantity;
     });
     return totalPrice;
   }
-
 
   void _placeOrder() {
     // Logic to place order goes here.
@@ -60,13 +67,15 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Giỏ Hàng', style: TextStyle(color: Colors.white),),
+        title: Text(
+          'Giỏ Hàng',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.pink,
       ),
       body: FutureBuilder<List<CartItem>>(
         future: _cartItems,
         builder: (context, snapshot) {
-          print(snapshot.toString());
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
@@ -74,48 +83,183 @@ class _CartScreenState extends State<CartScreen> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('Giỏ hàng của bạn trống.'));
           }
-
           return Stack(
             children: [
               ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final item = snapshot.data![index];
+                  final TextEditingController quantityController =
+                      TextEditingController(text: "${item.quantity}");
                   return Row(
                     children: [
                       Image(
                         width: 80,
                         height: 80,
-                        image: NetworkImage(item.imageUrl), // Đường dẫn tới ảnh
-                        fit: BoxFit
-                            .cover, // Tùy chỉnh để ảnh được fit vào vùng chứa
+                        image: NetworkImage(item.imageUrl),
+                        fit: BoxFit.cover,
                       ),
-                      Row(
-                        children: [
-                          Column(
-                            children: [
-                              Text(item.name),
-                              Text('Giá: \$${item.price} x ${item.quantity}')
-                            ],
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                          ),
-                          SizedBox(
-                            width: 100,
-                          ),
-                          IconButton(
-                              onPressed: () {}, icon: Icon(Icons.delete)),
-                        ],
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      )
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item.name),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Đơn Giá: \$${item.price} ',
+                                    style: TextStyle(color: Colors.black), // Bạn có thể tùy chỉnh màu sắc ở đây
+                                  ),
+                                  TextSpan(
+                                    text: 'x ${item.quantity}',
+                                    style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    int currentValue =
+                                        int.parse(quantityController.text);
+                                    if (currentValue > 0) {
+                                      quantityController.text =
+                                          (currentValue - 1)
+                                              .toString(); // Giảm giá trị
+                                    }
+                                  },
+                                  icon: Icon(Icons.remove),
+                                  iconSize: 15,
+                                ),
+                                SizedBox(
+                                  width:
+                                      30, // Giới hạn chiều rộng của TextField
+                                  height: 30, // Chiều cao của TextField
+                                  child: TextField(
+                                    controller: quantityController,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white.withOpacity(0.7),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical:
+                                              5), // Giảm padding trong TextField
+                                    ),
+                                    onChanged: (value) {
+                                      if (value.isNotEmpty &&
+                                          int.tryParse(value) != null) {
+                                        int number = int.parse(value);
+                                        if (number < 0) {
+                                          quantityController.text = '0';
+                                          quantityController.selection =
+                                              TextSelection.fromPosition(
+                                            TextPosition(
+                                                offset: quantityController
+                                                    .text.length),
+                                          );
+                                        }
+                                      }
+                                    },
+                                  ),
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      int currentValue =
+                                          int.parse(quantityController.text);
+                                      if (currentValue >= 0) {
+                                        quantityController.text =
+                                            (currentValue + 1)
+                                                .toString(); // Tăng giá trị
+                                      }
+                                    },
+                                    icon: Icon(Icons.add),
+                                    iconSize: 15),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(children: [
+                        IconButton(
+                          onPressed: () {
+                            _deleteCartItem(item.id);
+                          },
+                          icon: Icon(Icons.delete),
+                          color: Colors.red,
+                        ),
+                        IconButton(
+                            onPressed: () async {
+                              if (item.quantity !=
+                                      int.parse(quantityController.text) &&
+                                  int.parse(quantityController.text) > 0) {
+                                try {
+                                  String? userId =
+                                      await AuthService().getUserId();
+                                  String? token =
+                                      await AuthService().getToken();
+                                  if (userId != null && token != null) {
+                                    await CartService().addToCart(
+                                        token,
+                                        item.productId,
+                                        int.parse(quantityController.text) -
+                                            item.quantity,
+                                        int.parse(userId));
+                                    _cartItems = CartService()
+                                        .getCart(widget.token, widget.userId);
+                                    setState(() {
+                                      _cartItems = CartService()
+                                          .getCart(widget.token, widget.userId);
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Cập nhật giỏ hàng thành công!'),
+                                        duration: Duration(
+                                            seconds:
+                                                2), // Thời gian hiển thị của thông báo
+                                      ),
+                                    );
+                                  } else {
+                                    Navigator.pushNamed(context, '/login');
+                                  }
+                                } catch (error) {
+                                  _cartItems = CartService()
+                                      .getCart(widget.token, widget.userId);
+                                  setState(() {
+                                    _cartItems = CartService()
+                                        .getCart(widget.token, widget.userId);
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Cập nhật giỏ hàng không thành công!'),
+                                      duration: Duration(
+                                          seconds:
+                                              2), // Thời gian hiển thị của thông báo
+                                    ),
+                                  );
+                                }
+                              }else if ( int.parse(quantityController.text) == 0){
+                                _deleteCartItem(item.id);
+                              }
+                            },
+                            icon: Icon(Icons.save),
+                            color: Colors.green)
+                      ])
                     ],
-                  );
-                  ListTile(
-                    title: Text(item.name),
-                    subtitle: Text('Giá: \$${item.price} x ${item.quantity}'),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () => _deleteCartItem(item.id),
-                    ),
                   );
                 },
               ),
@@ -136,7 +280,10 @@ class _CartScreenState extends State<CartScreen> {
                             'Tổng số lượng: ${getTotalCartQuantity(snapshot.data!)}',
                             style: TextStyle(fontSize: 18),
                           ),
-                          Text('Tổng tiê: ${getTotalCartPrice(snapshot.data!)}',  style: TextStyle(fontSize: 18),)
+                          Text(
+                            'Tổng tiền: ${getTotalCartPrice(snapshot.data!)}',
+                            style: TextStyle(fontSize: 18),
+                          )
                         ],
                         crossAxisAlignment: CrossAxisAlignment.start,
                       ),
@@ -154,7 +301,6 @@ class _CartScreenState extends State<CartScreen> {
           );
         },
       ),
-
     );
   }
 }
