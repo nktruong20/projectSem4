@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:project_sem4/screens/checkout_screen.dart';
 import 'package:project_sem4/services/auth_service.dart';
 import '../models/cart.dart';
 import '../services/cart_service.dart';
@@ -58,9 +59,14 @@ class _CartScreenState extends State<CartScreen> {
     return totalPrice;
   }
 
-  void _placeOrder() {
-    // Logic to place order goes here.
-    // You will need to implement the place order service and call it here.
+
+  void _navigateToCheckout() async {
+    String? userName =  await AuthService().getUsername();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => checkoutScreen(token: widget.token, userId: widget.userId, userName: '${userName}',)),
+    );
   }
 
   @override
@@ -281,16 +287,14 @@ class _CartScreenState extends State<CartScreen> {
                             style: TextStyle(fontSize: 18),
                           ),
                           Text(
-                            'Tổng tiền: ${getTotalCartPrice(snapshot.data!)}',
+                            'Tổng tiền: \$${getTotalCartPrice(snapshot.data!)}',
                             style: TextStyle(fontSize: 18),
                           )
                         ],
                         crossAxisAlignment: CrossAxisAlignment.start,
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          // Xử lý khi nhấn nút checkout
-                        },
+                        onPressed: _navigateToCheckout,
                         child: Text('Checkout'),
                       ),
                     ],

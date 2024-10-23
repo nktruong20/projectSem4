@@ -4,8 +4,10 @@ class Order {
   final double totalPrice;
   final String status;
   final DateTime createdAt;
+  final String addresss;
+  final String phone;
 
-  Order({required this.id, required this.userId, required this.totalPrice, required this.status, required this.createdAt});
+  Order({required this.id, required this.userId, required this.totalPrice, required this.status, required this.createdAt, required this.addresss, required this.phone});
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
@@ -14,6 +16,8 @@ class Order {
       totalPrice: json['total_price'],
       status: json['status'],
       createdAt: DateTime.parse(json['created_at']),
+      addresss: json['address'],
+      phone: json['phone']
     );
   }
 }
