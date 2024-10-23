@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: _navigateToCartScreen, // Chuyển tới trang giỏ hàng
           ),
-          _buildUserInfo(), // Hiển thị tên người dùng và icon logout
+          _buildUserDropdown(), // Dropdown chỉ chứa username và hành động logout/login
         ],
       ),
       body: Column(
@@ -190,8 +190,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Hàm hiển thị thông tin người dùng và icon logout
-  Widget _buildUserInfo() {
+  // Hàm để tạo dropdown cho người dùng
+  Widget _buildUserDropdown() {
     return FutureBuilder<String?>(
       future: authService.getUsername(),
       builder: (context, snapshot) {
@@ -199,24 +199,36 @@ class _HomeScreenState extends State<HomeScreen> {
           return const CircularProgressIndicator();
         }
         if (snapshot.hasData && snapshot.data != null) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Row(
-              children: [
-                Text(
-                  snapshot.data!, // Hiển thị tên người dùng
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.logout, color: Colors.white), // Icon logout
-                  onPressed: _logout, // Thực hiện đăng xuất
-                ),
-              ],
+          return PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'logout') {
+                _logout();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'username',
+                child: Text('User: ${snapshot.data!}'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Text('Logout'),
+              ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Text(snapshot.data!, style: TextStyle(fontSize: 20, color: Colors.white)),
+                  Icon(Icons.arrow_drop_down, color: Colors.white),
+                ],
+              ),
             ),
           );
         } else {
           return IconButton(
             icon: const Icon(Icons.person, color: Colors.white), // Icon chuyển tới trang đăng nhập
+            iconSize: 24, // Đặt kích thước icon là 24px
             onPressed: () {
               Navigator.pushNamed(context, '/login');
             },
@@ -226,13 +238,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-//1
-
 //2
-
-//3
-//4
-
-//5
-//6
