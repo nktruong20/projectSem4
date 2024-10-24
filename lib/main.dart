@@ -6,13 +6,14 @@ import 'package:project_sem4/screens/admin_screen.dart';
 import 'package:project_sem4/screens/category_list_screen.dart';
 import 'package:project_sem4/screens/product_list_screen.dart';
 import 'package:project_sem4/screens/product_detail_screen.dart';
-import 'models/user_model.dart';
-import 'screens/login_screen.dart';
-import 'screens/signup_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/edit_product_screen.dart';
-import 'screens/cart_screen.dart';
-import 'screens/order_screen.dart';
+import 'package:project_sem4/models/user_model.dart';
+import 'package:project_sem4/screens/login_screen.dart';
+import 'package:project_sem4/screens/signup_screen.dart';
+import 'package:project_sem4/screens/home_screen.dart';
+import 'package:project_sem4/screens/edit_product_screen.dart';
+import 'package:project_sem4/screens/cart_screen.dart';
+import 'package:project_sem4/screens/order_screen.dart';
+import 'package:project_sem4/screens/order_list_screen.dart'; // Thêm import cho OrderListScreen
 
 void main() {
   runApp(MyApp());
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
           final Product product = ModalRoute.of(context)?.settings.arguments as Product;
           return ProductDetailScreen(product: product);
         },
+        '/orderList': (context) => OrderListScreen(),  // Thêm route cho OrderListScreen
         // '/cart': (context) {
         //   final CartController cartController = ModalRoute.of(context)?.settings.arguments as CartController;
         //   return CartScreen(cartController: cartController);
