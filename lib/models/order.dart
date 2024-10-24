@@ -23,8 +23,10 @@ class Order {
     return Order(
       id: json['id'] ?? 0, // Nếu 'id' là null, gán giá trị mặc định là 0
       userId: json['user_id'] ?? 0, // Tương tự cho 'user_id'
-      totalPrice: (json['total_price'] ?? 0).toDouble(), // Đảm bảo total_price là double
-      status: json['status'] ?? 'Unknown', // Nếu 'status' là null, gán giá trị mặc định
+      totalPrice: (json['total_price'] ?? 0)
+          .toDouble(), // Đảm bảo total_price là double
+      status: json['status'] ??
+          'Unknown', // Nếu 'status' là null, gán giá trị mặc định
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(), // Nếu 'created_at' là null, dùng thời gian hiện tại
@@ -33,5 +35,4 @@ class Order {
       username: json['username'] ?? 'Unknown', // Giá trị mặc định cho username
     );
   }
-
 }

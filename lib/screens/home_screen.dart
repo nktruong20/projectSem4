@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:project_sem4/screens/cart_screen.dart';
+import 'package:project_sem4/screens/login_screen.dart';
 import '../controllers/product_controller.dart';
 import '../widgets/home_product_card.dart';
 import '../services/auth_service.dart';
@@ -51,6 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => CartScreen(token: token, userId: int.parse(userId))),
+      );
+    }else{
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     }
   }
