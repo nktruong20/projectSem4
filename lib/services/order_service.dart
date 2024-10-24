@@ -19,6 +19,18 @@ class OrderService {
       throw Exception('Failed to load orders');
     }
   }
+  Future<List<Order>> getOrderAdmin() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/admin/orders'),
+    );
+
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((item) => Order.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load admin orders');
+    }
+  }
 
   Future<void> PostOrder(String token, List<CartItem> cartItems, double totalPrice, String address, String phone) async {
     String arrayStringCartId = "[";
