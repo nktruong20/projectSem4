@@ -29,7 +29,7 @@ class HomeProductCard extends StatelessWidget {
           children: [
             // Hình ảnh sản phẩm
             Container(
-              height: 180, // Chiều cao hình ảnh
+              height: 160, // Giảm chiều cao của hình ảnh để tránh overflow
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0), // Bo tròn góc
@@ -48,9 +48,11 @@ class HomeProductCard extends StatelessWidget {
                   Text(
                     product.name,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16, // Giảm kích thước font để vừa vặn hơn
                       fontWeight: FontWeight.bold,
                     ),
+                    overflow: TextOverflow.ellipsis, // Thêm dấu "..." nếu tên quá dài
+                    maxLines: 1, // Giới hạn hiển thị tên sản phẩm trong 1 dòng
                   ),
                   const SizedBox(height: 4.0),
                   // Giá sản phẩm
@@ -60,6 +62,8 @@ class HomeProductCard extends StatelessWidget {
                       fontSize: 16,
                       color: Colors.pinkAccent,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ],
               ),

@@ -15,7 +15,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   String? _name;
   String? _description;
   double? _price;
-  int? _stock;
   String? _imageUrl;
   int? _selectedCategoryId;
 
@@ -118,21 +117,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         ),
                         const SizedBox(height: 16), // Khoảng cách giữa các trường
                         _buildTextField(
-                          label: 'Số lượng sản phẩm',
-                          icon: Icons.confirmation_number,
-                          keyboardType: TextInputType.number,
-                          onSaved: (value) {
-                            _stock = int.tryParse(value?.trim() ?? '');
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Vui lòng nhập số lượng sản phẩm';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16), // Khoảng cách giữa các trường
-                        _buildTextField(
                           label: 'URL hình ảnh',
                           icon: Icons.image,
                           onSaved: (value) => _imageUrl = value?.trim(),
@@ -180,7 +164,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               if (_selectedCategoryId == null ||
                                   _name == null ||
                                   _price == null ||
-                                  _stock == null ||
                                   _imageUrl == null) {
                                 print('Một hoặc nhiều giá trị là null');
                                 return;
@@ -192,7 +175,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 name: _name!,
                                 description: _description ?? '',
                                 price: _price!,
-                                stock: _stock!,
+                                stock: 0, // Hoặc loại bỏ nếu không cần
                                 imageUrl: _imageUrl!,
                               );
 

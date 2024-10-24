@@ -16,6 +16,7 @@ class Category {
     if (json['name'] == null || json['description'] == null) {
       throw Exception('Name and description must not be null');
     }
+
     return Category(
       id: json['id'] != null ? json['id'] as int : null, // Chuyển đổi id
       name: json['name'] as String, // Chuyển đổi name

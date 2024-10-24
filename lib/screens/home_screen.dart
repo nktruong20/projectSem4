@@ -6,6 +6,7 @@ import '../widgets/home_product_card.dart';
 import '../services/auth_service.dart';
 import '../models/user_model.dart';
 import 'contact_screen.dart';
+import 'search_screen.dart'; // Import search screen
 import '../controllers/category_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,8 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
     'https://intphcm.com/data/upload/dung-luong-banner-thoi-trang.jpg',
     'https://intphcm.com/data/upload/banner-thoi-trang.jpg',
   ];
-
-  String? _selectedCategory;
 
   @override
   void initState() {
@@ -63,6 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _navigateToSearchScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchScreen()), // Chuyển tới màn hình tìm kiếm
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,6 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: Colors.pink,
         actions: [
+          // IconButton(
+          //   icon: const Icon(Icons.search, color: Colors.white), // Icon tìm kiếm
+          //   onPressed: _navigateToSearchScreen, // Chuyển tới trang tìm kiếm
+          // ),
           IconButton(
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: _navigateToCartScreen, // Chuyển tới trang giỏ hàng
@@ -82,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Taskbar với các menu
+          // Taskbar với menu chỉ có Contact và Tìm kiếm
           Container(
             padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
             color: Colors.pink[100],
@@ -90,34 +100,23 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    Navigator.popAndPushNamed(context, '/home');
-                  },
-                  child: Text(
-                    'Home',
-                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.pink),
-                  ),
-                ),
-                DropdownButton<String>(
-                  hint: const Text('Danh mục', style: TextStyle(color: Colors.pink)),
-                  value: _selectedCategory,
-                  items: categoryController.categories.map((category) {
-                    return DropdownMenuItem<String>(
-                      value: category.name,
-                      child: Text(category.name, style: TextStyle(color: Colors.pink)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategory = value;
-                    });
-                  },
-                ),
-                GestureDetector(
                   onTap: _navigateToContactScreen,
                   child: Text(
                     'Contact',
                     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.pink),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _navigateToSearchScreen, // Điều hướng đến trang tìm kiếm
+                  child: Row(
+                    children: [
+                      Icon(Icons.search, color: Colors.pink),
+                      SizedBox(width: 5), // Khoảng cách giữa icon và text
+                      Text(
+                        'Tìm kiếm',
+                        style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.pink),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -129,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Banner chuyển động
           Container(
-            height: 150.0, // Độ dài của banner
+            height: 150.0,
             child: CarouselSlider(
               options: CarouselOptions(
                 height: 150.0,

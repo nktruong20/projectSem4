@@ -25,12 +25,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Tải lại sản phẩm mỗi khi trang này được hiển thị
-    _loadProducts();
-  }
-
+  // ProductListScreen.dart
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +35,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0), // Tạo khoảng cách cho toàn bộ màn hình
+        padding: const EdgeInsets.all(12.0),
         child: FutureBuilder(
           future: productController.loadProducts(),
           builder: (context, snapshot) {
@@ -55,10 +50,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
             }
             return GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1, // Hiển thị 1 sản phẩm trên mỗi hàng
-                crossAxisSpacing: 10, // Khoảng cách ngang giữa các sản phẩm
-                mainAxisSpacing: 15, // Khoảng cách dọc giữa các sản phẩm
-                childAspectRatio: 3, // Điều chỉnh tỉ lệ chiều cao trên chiều rộng để sản phẩm to và rõ hơn
+                crossAxisCount: 1,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 15,
+                childAspectRatio: 3,
               ),
               itemCount: productController.products.length,
               itemBuilder: (context, index) {
@@ -67,7 +62,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   product: product,
                   productController: productController,
                   authService: authService,
-                  onProductDeleted: _loadProducts, // Truyền callback để tải lại danh sách
+                  onProductDeleted: _loadProducts,
+                  onProductUpdated: _loadProducts, // Truyền callback vào đây
                 );
               },
             );
@@ -77,18 +73,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // Điều hướng đến trang thêm sản phẩm
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddProductScreen()),
-          );
+          final shouldReload = await Navigator.pushNamed(context, '/add_product');
 
-          // Sau khi quay lại, tải lại sản phẩm
-          await _loadProducts();
+          // Sau khi quay lại, tải lại sản phẩm nếu cần thiết
+          if (shouldReload == true) {
+            await _loadProducts();
+          }
         },
-        backgroundColor: Colors.pinkAccent, // Màu của nút thêm
+        backgroundColor: Colors.pinkAccent,
         child: const Icon(Icons.add),
         tooltip: 'Thêm sản phẩm mới',
       ),
     );
   }
+
 }
