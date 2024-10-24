@@ -4,6 +4,8 @@ import 'package:project_sem4/screens/checkout_screen.dart';
 import 'package:project_sem4/services/auth_service.dart';
 import '../models/cart.dart';
 import '../services/cart_service.dart';
+import 'package:project_sem4/screens/checkout_screen.dart'; // Đảm bảo rằng đường dẫn là chính xác
+
 
 class CartScreen extends StatefulWidget {
   final String token;
@@ -27,16 +29,12 @@ class _CartScreenState extends State<CartScreen> {
   void _deleteCartItem(int id) {
     CartService().deleteCartItem(widget.token, id).then((_) {
       setState(() {
-        _cartItems = CartService()
-            .getCart(widget.token, widget.userId); // Refresh cart items
+        _cartItems = CartService().getCart(widget.token, widget.userId); // Refresh cart items
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              'Xóa thành công'),
-          duration: Duration(
-              seconds:
-              2), // Thời gian hiển thị của thông báo
+          content: Text('Xóa thành công'),
+          duration: Duration(seconds: 2),
         ),
       );
     });
@@ -46,7 +44,7 @@ class _CartScreenState extends State<CartScreen> {
     int totalQuantity = 0;
 
     cartItem.forEach((item) {
-      totalQuantity = totalQuantity + item.quantity;
+      totalQuantity += item.quantity;
     });
     return totalQuantity;
   }
@@ -54,18 +52,21 @@ class _CartScreenState extends State<CartScreen> {
   double getTotalCartPrice(List<CartItem> cartItem) {
     double totalPrice = 0;
     cartItem.forEach((item) {
-      totalPrice = totalPrice + item.price * item.quantity;
+      totalPrice += item.price * item.quantity;
     });
     return totalPrice;
   }
 
-
   void _navigateToCheckout() async {
-    String? userName =  await AuthService().getUsername();
-
+    String? userName = await AuthService().getUsername();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => checkoutScreen(token: widget.token, userId: widget.userId, userName: '${userName}',)),
+      MaterialPageRoute(
+          builder: (context) => checkoutScreen(
+            token: widget.token,
+            userId: widget.userId,
+            userName: '${userName}',
+          )),
     );
   }
 
@@ -77,7 +78,7 @@ class _CartScreenState extends State<CartScreen> {
           'Giỏ Hàng',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.pink,
+        backgroundColor: Colors.pinkAccent,
       ),
       body: FutureBuilder<List<CartItem>>(
         future: _cartItems,
@@ -87,7 +88,12 @@ class _CartScreenState extends State<CartScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Có lỗi xảy ra!'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Giỏ hàng của bạn trống.'));
+            return Center(
+              child: Text(
+                'Giỏ hàng của bạn trống.',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            );
           }
           return Stack(
             children: [
@@ -96,176 +102,178 @@ class _CartScreenState extends State<CartScreen> {
                 itemBuilder: (context, index) {
                   final item = snapshot.data![index];
                   final TextEditingController quantityController =
-                      TextEditingController(text: "${item.quantity}");
-                  return Row(
-                    children: [
-                      Image(
-                        width: 80,
-                        height: 80,
-                        image: NetworkImage(item.imageUrl),
-                        fit: BoxFit.cover,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.name),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Đơn Giá: \$${item.price} ',
-                                    style: TextStyle(color: Colors.black), // Bạn có thể tùy chỉnh màu sắc ở đây
-                                  ),
-                                  TextSpan(
-                                    text: 'x ${item.quantity}',
-                                    style: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                  TextEditingController(text: "${item.quantity}");
+                  return Card(
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    elevation: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              item.imageUrl,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
                             ),
-                            Row(
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                IconButton(
-                                  onPressed: () {
-                                    int currentValue =
-                                        int.parse(quantityController.text);
-                                    if (currentValue > 0) {
-                                      quantityController.text =
-                                          (currentValue - 1)
-                                              .toString(); // Giảm giá trị
-                                    }
-                                  },
-                                  icon: Icon(Icons.remove),
-                                  iconSize: 15,
+                                Text(
+                                  item.name,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(
-                                  width:
-                                      30, // Giới hạn chiều rộng của TextField
-                                  height: 30, // Chiều cao của TextField
-                                  child: TextField(
-                                    controller: quantityController,
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.digitsOnly,
-                                    ],
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.7),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide.none,
+                                SizedBox(height: 5),
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Đơn Giá: \$${item.price} ',
+                                        style: TextStyle(color: Colors.black),
                                       ),
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical:
-                                              5), // Giảm padding trong TextField
-                                    ),
-                                    onChanged: (value) {
-                                      if (value.isNotEmpty &&
-                                          int.tryParse(value) != null) {
-                                        int number = int.parse(value);
-                                        if (number < 0) {
-                                          quantityController.text = '0';
-                                          quantityController.selection =
-                                              TextSelection.fromPosition(
-                                            TextPosition(
-                                                offset: quantityController
-                                                    .text.length),
-                                          );
-                                        }
-                                      }
-                                    },
+                                      TextSpan(
+                                        text: 'x ${item.quantity}',
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                IconButton(
-                                    onPressed: () {
-                                      int currentValue =
-                                          int.parse(quantityController.text);
-                                      if (currentValue >= 0) {
-                                        quantityController.text =
-                                            (currentValue + 1)
-                                                .toString(); // Tăng giá trị
-                                      }
-                                    },
-                                    icon: Icon(Icons.add),
-                                    iconSize: 15),
+                                SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        int currentValue =
+                                        int.parse(quantityController.text);
+                                        if (currentValue > 0) {
+                                          quantityController.text =
+                                              (currentValue - 1).toString();
+                                        }
+                                      },
+                                      icon: Icon(Icons.remove),
+                                      iconSize: 20,
+                                      color: Colors.pinkAccent,
+                                    ),
+                                    SizedBox(
+                                      width: 40,
+                                      child: TextField(
+                                        controller: quantityController,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                        ],
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.pink[50],
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        int currentValue =
+                                        int.parse(quantityController.text);
+                                        if (currentValue >= 0) {
+                                          quantityController.text =
+                                              (currentValue + 1).toString();
+                                        }
+                                      },
+                                      icon: Icon(Icons.add),
+                                      iconSize: 20,
+                                      color: Colors.pinkAccent,
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                      Column(children: [
-                        IconButton(
-                          onPressed: () {
-                            _deleteCartItem(item.id);
-                          },
-                          icon: Icon(Icons.delete),
-                          color: Colors.red,
-                        ),
-                        IconButton(
-                            onPressed: () async {
-                              if (item.quantity !=
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  _deleteCartItem(item.id);
+                                },
+                                icon: Icon(Icons.delete),
+                                color: Colors.redAccent,
+                              ),
+                              IconButton(
+                                onPressed: () async {
+                                  if (item.quantity !=
                                       int.parse(quantityController.text) &&
-                                  int.parse(quantityController.text) > 0) {
-                                try {
-                                  String? userId =
+                                      int.parse(quantityController.text) > 0) {
+                                    try {
+                                      String? userId =
                                       await AuthService().getUserId();
-                                  String? token =
+                                      String? token =
                                       await AuthService().getToken();
-                                  if (userId != null && token != null) {
-                                    await CartService().addToCart(
-                                        token,
-                                        item.productId,
-                                        int.parse(quantityController.text) -
-                                            item.quantity,
-                                        int.parse(userId));
-                                    _cartItems = CartService()
-                                        .getCart(widget.token, widget.userId);
-                                    setState(() {
-                                      _cartItems = CartService()
-                                          .getCart(widget.token, widget.userId);
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            'Cập nhật giỏ hàng thành công!'),
-                                        duration: Duration(
-                                            seconds:
-                                                2), // Thời gian hiển thị của thông báo
-                                      ),
-                                    );
-                                  } else {
-                                    Navigator.pushNamed(context, '/login');
+                                      if (userId != null && token != null) {
+                                        await CartService().addToCart(
+                                            token,
+                                            item.productId,
+                                            int.parse(quantityController.text) -
+                                                item.quantity,
+                                            int.parse(userId));
+                                        setState(() {
+                                          _cartItems = CartService().getCart(
+                                              widget.token, widget.userId);
+                                        });
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Cập nhật giỏ hàng thành công!'),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      } else {
+                                        Navigator.pushNamed(context, '/login');
+                                      }
+                                    } catch (error) {
+                                      setState(() {
+                                        _cartItems = CartService().getCart(
+                                            widget.token, widget.userId);
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Cập nhật giỏ hàng không thành công!'),
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                    }
+                                  } else if (int.parse(
+                                      quantityController.text) ==
+                                      0) {
+                                    _deleteCartItem(item.id);
                                   }
-                                } catch (error) {
-                                  _cartItems = CartService()
-                                      .getCart(widget.token, widget.userId);
-                                  setState(() {
-                                    _cartItems = CartService()
-                                        .getCart(widget.token, widget.userId);
-                                  });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'Cập nhật giỏ hàng không thành công!'),
-                                      duration: Duration(
-                                          seconds:
-                                              2), // Thời gian hiển thị của thông báo
-                                    ),
-                                  );
-                                }
-                              }else if ( int.parse(quantityController.text) == 0){
-                                _deleteCartItem(item.id);
-                              }
-                            },
-                            icon: Icon(Icons.save),
-                            color: Colors.green)
-                      ])
-                    ],
+                                },
+                                icon: Icon(Icons.save),
+                                color: Colors.green,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 },
               ),
@@ -275,32 +283,43 @@ class _CartScreenState extends State<CartScreen> {
                 right: 0,
                 child: Container(
                   padding: EdgeInsets.all(16),
-                  color: Colors.white,
-                  child: Container(
-                      child: Row(
+                  color: Colors.pinkAccent.withOpacity(0.1),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Tổng số lượng: ${getTotalCartQuantity(snapshot.data!)}',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             'Tổng tiền: \$${getTotalCartPrice(snapshot.data!)}',
-                            style: TextStyle(fontSize: 18),
-                          )
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
                         ],
-                        crossAxisAlignment: CrossAxisAlignment.start,
                       ),
                       ElevatedButton(
                         onPressed: _navigateToCheckout,
-                        child: Text('Checkout'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.pinkAccent,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: Text(
+                          'Checkout',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                       ),
                     ],
-                  )),
+                  ),
                 ),
-              )
+              ),
             ],
           );
         },
