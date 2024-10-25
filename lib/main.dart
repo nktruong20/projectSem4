@@ -12,7 +12,6 @@ import 'package:project_sem4/screens/signup_screen.dart';
 import 'package:project_sem4/screens/home_screen.dart';
 import 'package:project_sem4/screens/edit_product_screen.dart';
 import 'package:project_sem4/screens/cart_screen.dart';
-import 'package:project_sem4/screens/order_screen.dart';
 import 'package:project_sem4/screens/order_list_screen.dart'; // Thêm import cho OrderListScreen
 
 void main() {

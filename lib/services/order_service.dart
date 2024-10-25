@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:project_sem4/models/cart.dart';
+import 'package:project_sem4/models/order_item.dart';
 import '../models/order.dart';
 
 class OrderService {
   final String baseUrl = 'http://10.0.2.2:3000'; // Thay đổi địa chỉ nếu cần
 
-  Future<List<Order>> getOrders(String token) async {
+  Future<List<Order>> getOrders(String token, int userId) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/orders'),
+      Uri.parse('$baseUrl/orders/${userId}'),
       headers: {'x-access-token': token},
     );
 
@@ -19,6 +20,7 @@ class OrderService {
       throw Exception('Failed to load orders');
     }
   }
+
   Future<List<Order>> getOrderAdmin() async {
     final response = await http.get(
       Uri.parse('$baseUrl/admin/orders'),
@@ -32,7 +34,7 @@ class OrderService {
     }
   }
 
-  Future<void> PostOrder(String token, List<CartItem> cartItems, double totalPrice, String address, String phone) async {
+  Future<void> PostOrder(String token, List<CartItem> cartItems, double totalPrice, String address, String phone, String username) async {
     String arrayStringCartId = "[";
     cartItems.forEach((item) {
       arrayStringCartId += '${item.id},';
@@ -45,11 +47,24 @@ class OrderService {
     final response = await http.post(
       Uri.parse('$baseUrl/orders'),
       headers: {'x-access-token': token, 'Content-Type': 'application/json'},
-      body: json.encode({'cart_items': arrayStringCartId, 'total_price': totalPrice, 'address': address, 'phone': phone, 'status': 'pending'}),
+      body: json.encode({'cart_items': arrayStringCartId, 'total_price': totalPrice, 'address': address, 'phone': phone, 'status': 'pending', 'username': username}),
     );
 
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw Exception('Failed to place order');
+    }
+  }
+
+  Future<List<OrderItem>> getOrderItems(int orderId, String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/order_items/${orderId}'),
+      headers: {'x-access-token': token, 'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((item) => OrderItem.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load admin orders');
     }
   }
 }
