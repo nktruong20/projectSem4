@@ -16,6 +16,17 @@ class ProductService {
     }
   }
 
+  // Lấy danh sách sản phẩm
+  Future<List<Product>> getProductsByCategoryId(int categoryId) async {
+    final response = await http.get(Uri.parse('${baseUrl}/category/${categoryId}'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((product) => Product.fromJson(product)).toList();
+    } else {
+      throw Exception('Failed to load products');
+    }
+  }
+
   // Lấy sản phẩm theo ID
   Future<Product> getProduct(int id) async {
     final response = await http.get(Uri.parse('$baseUrl/$id'));

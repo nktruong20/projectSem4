@@ -14,6 +14,15 @@ class ProductController {
     }
   }
 
+  // 1.2. Đọc - Lấy chi tiết sản phẩm theo category id
+  Future<void> getProductsByCategoryId(int categoryId) async {
+    try {
+      products =  await productService.getProductsByCategoryId(categoryId);
+    } catch (e) {
+      print('Lỗi khi tải sản phẩm: $e');
+    }
+  }
+
   // 2. Đọc - Lấy chi tiết sản phẩm theo ID
   Future<Product?> getProductById(int id) async {
     try {
