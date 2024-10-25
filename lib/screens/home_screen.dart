@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:project_sem4/screens/account_order_screen.dart';
 import 'package:project_sem4/screens/cart_screen.dart';
 import 'package:project_sem4/screens/login_screen.dart';
 import '../controllers/product_controller.dart';
@@ -209,9 +210,24 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: Row(
               children: [
-                Text(
-                  snapshot.data!, // Hiển thị tên người dùng
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
+                TextButton(
+                  onPressed:  () async {
+                    String? token = await authService.getToken();
+                    String? userId = await authService.getUserId();
+                    if (token != null && userId != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => orderAccountScreen(token: token, userId: int.parse(userId))),
+                      );
+                    }else{
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    }
+                  },
+                  child: Text(snapshot.data!, style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.logout, color: Colors.white), // Icon logout

@@ -184,24 +184,36 @@ class _CheckoutScreenState extends State<checkoutScreen> {
                                           snapshot.data!,
                                           getTotalCartPrice(snapshot.data!),
                                           address,
-                                          phone);
+                                          phone,
+                                          name);
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
-                                          content: Text('Đặt hàng thành công', style: TextStyle(fontSize: 18, color: Colors.green),),
+                                          content: Text(
+                                            'Đặt hàng thành công',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                color: Colors.green),
+                                          ),
                                           duration: Duration(
                                               seconds:
                                                   3), // Thời gian hiển thị của thông báo
                                         ),
                                       );
 
-                                      String? role = await AuthService().getRole();
+                                      String? role =
+                                          await AuthService().getRole();
                                       Navigator.pushAndRemoveUntil(
                                         context,
-                                        MaterialPageRoute(builder: (context) => HomeScreen(user: User(username: widget.userName, email: '', role: '${role}'))),
-                                            (route) => false, // Xóa tất cả các route trong stack
+                                        MaterialPageRoute(
+                                            builder: (context) => HomeScreen(
+                                                user: User(
+                                                    username: widget.userName,
+                                                    email: '',
+                                                    role: '${role}'))),
+                                        (route) =>
+                                            false, // Xóa tất cả các route trong stack
                                       );
-
                                     } catch (error) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
