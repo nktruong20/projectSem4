@@ -118,8 +118,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: _navigateToSearchScreen, // Điều hướng đến trang tìm kiếm
                   child: Row(
                     children: [
-                      Icon(Icons.search, color: Colors.pink),
-                      SizedBox(width: 5), // Khoảng cách giữa icon và text
                       Text(
                         'Tìm kiếm',
                         style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.pink),
@@ -168,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Danh mục sản phẩm',
+              'Sản phẩm',
               style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.pink),
             ),
           ),
