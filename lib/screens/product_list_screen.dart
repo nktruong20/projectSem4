@@ -25,8 +25,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   @override
-  // ProductListScreen.dart
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -63,7 +61,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   productController: productController,
                   authService: authService,
                   onProductDeleted: _loadProducts,
-                  onProductUpdated: _loadProducts, // Truyền callback vào đây
+                  onProductUpdated: _loadProducts,
                 );
               },
             );
@@ -73,9 +71,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // Điều hướng đến trang thêm sản phẩm
-          final shouldReload = await Navigator.pushNamed(context, '/add_product');
+          final shouldReload = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddProductScreen()),
+          );
 
-          // Sau khi quay lại, tải lại sản phẩm nếu cần thiết
+          // Tải lại danh sách sản phẩm nếu sản phẩm mới được thêm
           if (shouldReload == true) {
             await _loadProducts();
           }
@@ -86,5 +87,4 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
     );
   }
-
 }
