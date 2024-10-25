@@ -53,10 +53,6 @@ class OrderListScreen extends StatelessWidget {
                           style: TextStyle(color: Colors.pinkAccent, fontSize: 16, fontWeight: FontWeight.bold), // Đậm hơn
                         ),
                         Text(
-                          'Trạng thái: ${order.status}',
-                          style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.bold), // Đậm hơn
-                        ),
-                        Text(
                           'Địa chỉ: ${order.address}',
                           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold), // Đậm hơn
                         ),
@@ -70,10 +66,7 @@ class OrderListScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.pinkAccent),
-                    onTap: () {
-                      // Tại đây bạn có thể điều hướng đến màn hình chi tiết đơn hàng nếu cần
-                    },
+
                   ),
                 );
               },
