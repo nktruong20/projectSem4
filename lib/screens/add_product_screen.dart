@@ -45,22 +45,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       appBar: AppBar(
         title: const Text('Thêm Sản Phẩm Mới'),
         backgroundColor: Colors.pinkAccent,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit, color: Colors.white),
-            onPressed: () {
-              // Logic for updating product
-              print('Update product'); // Replace with actual update logic
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.delete, color: Colors.white),
-            onPressed: () {
-              // Logic for deleting product
-              print('Delete product'); // Replace with actual delete logic
-            },
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -94,13 +78,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16), // Khoảng cách giữa các trường
+                        const SizedBox(height: 16),
                         _buildTextField(
                           label: 'Mô tả sản phẩm',
                           icon: Icons.description,
                           onSaved: (value) => _description = value?.trim(),
                         ),
-                        const SizedBox(height: 16), // Khoảng cách giữa các trường
+                        const SizedBox(height: 16),
                         _buildTextField(
                           label: 'Giá sản phẩm',
                           icon: Icons.attach_money,
@@ -115,7 +99,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16), // Khoảng cách giữa các trường
+                        const SizedBox(height: 16),
                         _buildTextField(
                           label: 'URL hình ảnh',
                           icon: Icons.image,
@@ -186,16 +170,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                   return;
                                 }
                                 setState(() {
-                                  _isLoading = true; // Show loading indicator
+                                  _isLoading = true;
                                 });
                                 await productService.addProduct(newProduct, token);
                                 print('Thêm sản phẩm thành công!');
-                                Navigator.pop(context); // Quay lại màn hình trước
+
+                                // Truyền sản phẩm vừa được thêm về `ProductListScreen`
+                                Navigator.pop(context, true);
                               } catch (e) {
                                 print('Lỗi khi thêm sản phẩm: $e');
                               } finally {
                                 setState(() {
-                                  _isLoading = false; // Hide loading indicator
+                                  _isLoading = false;
                                 });
                               }
                             }

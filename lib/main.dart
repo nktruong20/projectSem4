@@ -13,7 +13,7 @@ import 'package:project_sem4/screens/home_screen.dart';
 import 'package:project_sem4/screens/edit_product_screen.dart';
 import 'package:project_sem4/screens/cart_screen.dart';
 import 'package:project_sem4/screens/order_list_screen.dart'; // Thêm import cho OrderListScreen
-
+import 'package:project_sem4/screens/add_product_screen.dart';
 void main() {
   runApp(MyApp());
 }
@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomeScreen(user: User(username: 'Guest', email: '', role: '')),
         '/productList': (context) => ProductListScreen(),
         '/categoryList': (context) => CategoryListScreen(),
+        '/addproduct':(context)=> AddProductScreen(),
         '/editProduct': (context) {
           final Product product = ModalRoute.of(context)?.settings.arguments as Product;
           return EditProductScreen(product: product);
