@@ -59,9 +59,9 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await storage.delete(key: 'username'); // Xóa tên người dùng khi đăng xuất
-    await storage.delete(key: 'role'); // Xóa vai trò khi đăng xuất
+    await storage.deleteAll(); // Xóa tất cả key-value trong secure storage
   }
+
 
   Future<String?> getUsername() async {
     return await storage.read(key: 'username'); // Lấy tên người dùng từ secure storage

@@ -48,12 +48,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void _navigateToCartScreen() async {
     String? token = await authService.getToken();
     String? userId = await authService.getUserId();
+
     if (token != null && userId != null) {
+      // User is logged in, navigate to CartScreen
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => CartScreen(token: token, userId: int.parse(userId))),
       );
-    }else{
+    } else {
+      // User is not logged in, navigate to LoginScreen
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -84,11 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.pink,
+        automaticallyImplyLeading: false, // Không hiển thị nút quay lại
         actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.search, color: Colors.white), // Icon tìm kiếm
-          //   onPressed: _navigateToSearchScreen, // Chuyển tới trang tìm kiếm
-          // ),
           IconButton(
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: _navigateToCartScreen, // Chuyển tới trang giỏ hàng
@@ -96,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildUserInfo(), // Hiển thị tên người dùng và icon logout
         ],
       ),
+
       body: Column(
         children: [
           // Taskbar với menu chỉ có Contact và Tìm kiếm
@@ -197,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Hàm hiển thị thông tin người dùng và icon logout
   Widget _buildUserInfo() {
-    return FutureBuilder<String?>(
+    return FutureBuilder<String?>( // FutureBuilder để lấy tên người dùng
       future: authService.getUsername(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
