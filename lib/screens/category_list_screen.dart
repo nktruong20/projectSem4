@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/category_controller.dart';
 import 'add_category_screen.dart';
+import '../services/auth_service.dart';
 
 class CategoryListScreen extends StatefulWidget {
   @override
@@ -9,11 +10,18 @@ class CategoryListScreen extends StatefulWidget {
 
 class _CategoryListScreenState extends State<CategoryListScreen> {
   final CategoryController categoryController = CategoryController();
+  final AuthService authService = AuthService();
+  String? token;
 
   @override
   void initState() {
     super.initState();
     _loadCategories(); // Tải danh sách danh mục khi màn hình được khởi tạo
+    _loadToken(); // Tải token khi màn hình được khởi tạo
+  }
+
+  Future<void> _loadToken() async {
+    token = await authService.getToken(); // Lấy token từ AuthService
   }
 
   Future<void> _loadCategories() async {
@@ -66,11 +74,53 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                     size: 40,
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.edit),
+                    icon: const Icon(Icons.delete),
                     color: Colors.pinkAccent,
                     onPressed: () {
-                      // Logic for editing the category
-                      print('Edit category: ${category.name}');
+                      if (category.id != null) { // Kiểm tra id có khác null không
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Xác nhận xóa'),
+                              content: Text('Bạn có chắc chắn muốn xóa danh mục "${category.name}" không?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Đóng dialog
+                                  },
+                                  child: const Text('Hủy'),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    // Xóa category
+                                    if (token != null) {
+                                      try {
+                                        await categoryController.deleteCategory(category.id!, token!); // Gọi hàm xóa với token
+                                        Navigator.of(context).pop(); // Đóng dialog sau khi xóa thành công
+                                        _loadCategories(); // Tải lại danh sách sau khi xóa
+                                      } catch (e) {
+                                        // Xử lý lỗi
+                                        print('Error deleting category: $e');
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Lỗi khi xóa danh mục.')),
+                                        );
+                                      }
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Không thể lấy token.')),
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Xóa'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        print('ID danh mục không hợp lệ'); // Thông báo lỗi nếu ID là null
+                      }
                     },
                   ),
                   onTap: () {

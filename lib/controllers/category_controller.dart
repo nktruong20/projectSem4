@@ -51,6 +51,7 @@ class CategoryController {
       await categoryService.deleteCategory(id, token);
       // Sau khi xóa category thành công, tải lại danh sách category
       await loadCategories();
+      print('Danh mục đã được xóa thành công.');
     } catch (e) {
       print('Lỗi khi xóa danh mục: $e');
     }

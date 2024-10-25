@@ -6,9 +6,9 @@ import '../services/product_service.dart';
 import '../services/auth_service.dart';
 
 class EditProductScreen extends StatefulWidget {
-  final Product product; // Nhận sản phẩm hiện tại
+  final Product product;
 
-  EditProductScreen({required this.product});
+  const EditProductScreen({Key? key, required this.product}) : super(key: key);
 
   @override
   _EditProductScreenState createState() => _EditProductScreenState();
@@ -19,36 +19,78 @@ class _EditProductScreenState extends State<EditProductScreen> {
   String? _name;
   String? _description;
   double? _price;
-  int? _stock;
   String? _imageUrl;
   int? _selectedCategoryId;
 
-  final CategoryController categoryController = CategoryController();
-  final ProductService productService = ProductService();
-  final AuthService authService = AuthService();
+  final CategoryController _categoryController = CategoryController();
+  final ProductService _productService = ProductService();
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _loadCategories();
-    // Khởi tạo giá trị từ sản phẩm hiện tại
+    _initializeProductFields();
+  }
+
+  void _initializeProductFields() {
     _name = widget.product.name;
     _description = widget.product.description;
     _price = widget.product.price;
-    _stock = widget.product.stock;
     _imageUrl = widget.product.imageUrl;
-    _selectedCategoryId = widget.product.categoryId; // Gán danh mục hiện tại
+    _selectedCategoryId = widget.product.categoryId;
   }
 
   Future<void> _loadCategories() async {
     setState(() {
       _isLoading = true;
     });
-    await categoryController.loadCategories();
+    await _categoryController.loadCategories();
     setState(() {
       _isLoading = false;
     });
+  }
+
+  Future<void> _saveProduct() async {
+    if (_formKey.currentState?.validate() == true) {
+      _formKey.currentState?.save();
+
+      if (_selectedCategoryId == null || _name == null || _price == null || _imageUrl == null) {
+        print('Một hoặc nhiều giá trị là null');
+        return;
+      }
+
+      Product updatedProduct = Product(
+        id: widget.product.id,
+        categoryId: _selectedCategoryId!,
+        name: _name!,
+        description: _description ?? '',
+        price: _price!,
+        stock: widget.product.stock,
+        imageUrl: _imageUrl!,
+      );
+
+      try {
+        String? token = await _authService.getToken();
+        if (token == null) {
+          print('Token is null');
+          return;
+        }
+        setState(() {
+          _isLoading = true;
+        });
+        await _productService.updateProduct(widget.product.id, updatedProduct, token);
+        print('Cập nhật sản phẩm thành công!');
+        Navigator.pop(context, true); // Thay đổi ở đây
+      } catch (e) {
+        print('Lỗi khi cập nhật sản phẩm: $e');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -56,7 +98,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chỉnh Sửa Sản Phẩm'),
-        backgroundColor: Colors.pinkAccent, // Màu hồng cho AppBar
+        backgroundColor: Colors.pinkAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -66,61 +108,34 @@ class _EditProductScreenState extends State<EditProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Trường tên sản phẩm
                 _buildTextField(
                   label: 'Tên sản phẩm',
                   initialValue: _name,
                   onSaved: (value) => _name = value?.trim(),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Vui lòng nhập tên sản phẩm'
-                      : null,
+                  validator: (value) => value == null || value.isEmpty ? 'Vui lòng nhập tên sản phẩm' : null,
                 ),
                 const SizedBox(height: 16),
-
-                // Trường mô tả sản phẩm
                 _buildTextField(
                   label: 'Mô tả sản phẩm',
                   initialValue: _description,
                   onSaved: (value) => _description = value?.trim(),
                 ),
                 const SizedBox(height: 16),
-
-                // Trường giá sản phẩm
                 _buildTextField(
                   label: 'Giá sản phẩm',
                   initialValue: _price?.toString(),
                   keyboardType: TextInputType.number,
                   onSaved: (value) => _price = double.tryParse(value?.trim() ?? ''),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Vui lòng nhập giá sản phẩm'
-                      : null,
+                  validator: (value) => value == null || value.isEmpty ? 'Vui lòng nhập giá sản phẩm' : null,
                 ),
                 const SizedBox(height: 16),
-
-                // Trường số lượng sản phẩm
-                _buildTextField(
-                  label: 'Số lượng sản phẩm',
-                  initialValue: _stock?.toString(),
-                  keyboardType: TextInputType.number,
-                  onSaved: (value) => _stock = int.tryParse(value?.trim() ?? ''),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Vui lòng nhập số lượng sản phẩm'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                // Trường URL hình ảnh
                 _buildTextField(
                   label: 'URL hình ảnh',
                   initialValue: _imageUrl,
                   onSaved: (value) => _imageUrl = value?.trim(),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Vui lòng nhập URL hình ảnh'
-                      : null,
+                  validator: (value) => value == null || value.isEmpty ? 'Vui lòng nhập URL hình ảnh' : null,
                 ),
                 const SizedBox(height: 20),
-
-                // Dropdown để chọn danh mục
                 _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : DropdownButtonFormField<int>(
@@ -132,7 +147,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       borderSide: const BorderSide(color: Colors.pink),
                     ),
                   ),
-                  items: categoryController.categories.map((category) {
+                  items: _categoryController.categories.map((category) {
                     return DropdownMenuItem<int>(
                       value: category.id,
                       child: Text(category.name),
@@ -143,12 +158,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       _selectedCategoryId = value;
                     });
                   },
-                  validator: (value) =>
-                  value == null ? 'Vui lòng chọn danh mục' : null,
+                  validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
                 ),
                 const SizedBox(height: 20),
-
-                // Nút lưu sản phẩm
                 ElevatedButton(
                   onPressed: _isLoading ? null : _saveProduct,
                   child: const Text('Lưu sản phẩm'),
@@ -184,52 +196,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
       keyboardType: keyboardType,
       onSaved: onSaved,
       validator: validator,
-      style: const TextStyle(color: Colors.black),
     );
-  }
-
-  Future<void> _saveProduct() async {
-    if (_formKey.currentState?.validate() == true) {
-      _formKey.currentState?.save();
-
-      if (_selectedCategoryId == null ||
-          _name == null ||
-          _price == null ||
-          _stock == null ||
-          _imageUrl == null) {
-        print('Một hoặc nhiều giá trị là null');
-        return;
-      }
-
-      Product updatedProduct = Product(
-        id: widget.product.id, // Giữ ID cũ của sản phẩm
-        categoryId: _selectedCategoryId!,
-        name: _name!,
-        description: _description ?? '',
-        price: _price!,
-        stock: _stock!,
-        imageUrl: _imageUrl!,
-      );
-
-      try {
-        String? token = await authService.getToken();
-        if (token == null) {
-          print('Token is null');
-          return;
-        }
-        setState(() {
-          _isLoading = true; // Hiển thị loading
-        });
-        await productService.updateProduct(widget.product.id, updatedProduct, token); // Gọi hàm update
-        print('Cập nhật sản phẩm thành công!');
-        Navigator.pop(context); // Quay lại màn hình trước
-      } catch (e) {
-        print('Lỗi khi cập nhật sản phẩm: $e');
-      } finally {
-        setState(() {
-          _isLoading = false; // Ẩn loading
-        });
-      }
-    }
   }
 }

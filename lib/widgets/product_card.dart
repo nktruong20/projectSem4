@@ -3,13 +3,13 @@ import 'package:project_sem4/screens/edit_product_screen.dart';
 import '../models/product_model.dart';
 import '../controllers/product_controller.dart';
 import '../services/auth_service.dart';
-// import 'edit_product_screen.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
   final ProductController productController;
   final AuthService authService;
   final VoidCallback onProductDeleted;
+  final VoidCallback onProductUpdated; // Callback cho cập nhật sản phẩm
 
   const ProductCard({
     Key? key,
@@ -17,6 +17,7 @@ class ProductCard extends StatelessWidget {
     required this.productController,
     required this.authService,
     required this.onProductDeleted,
+    required this.onProductUpdated, // Thêm tham số callback vào constructor
   }) : super(key: key);
 
   @override
@@ -31,14 +32,21 @@ class ProductCard extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.of(context).push(
+              onPressed: () async {
+                // Điều hướng đến EditProductScreen
+                final shouldReload = await Navigator.push(
+                  context,
                   MaterialPageRoute(
                     builder: (context) => EditProductScreen(
                       product: product,
                     ),
                   ),
                 );
+
+                // Nếu EditProductScreen trả về true, gọi callback để cập nhật
+                if (shouldReload == true) {
+                  onProductUpdated(); // Gọi hàm callback cập nhật
+                }
               },
             ),
             IconButton(

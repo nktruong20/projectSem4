@@ -63,19 +63,25 @@ class CategoryService {
 
   // Xóa category theo ID
   Future<void> deleteCategory(int id, String token) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/$id'),
-      headers: {
-        'x-access-token': token,
-      },
-    );
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$id'),
+        headers: {
+          'x-access-token': token,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      print('Category deleted successfully');
-    } else {
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      throw Exception('Failed to delete category: ${response.body}');
+      if (response.statusCode == 200) {
+        print('Category deleted successfully');
+      } else {
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to delete category: ${response.body}');
+      }
+    } catch (e) {
+      print('Error occurred while deleting category: $e');
+      throw Exception('Error occurred while deleting category: $e');
     }
   }
+
 }
